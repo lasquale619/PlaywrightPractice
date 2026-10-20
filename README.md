@@ -1,7 +1,25 @@
-# Mon projet Playwright
+# Playwright Practice
 
-Tests automatisés de l'application [Notes](https://practice.expandtesting.com/notes/app/) avec Playwright :
-tests UI (Page Object Model), tests API et mocking réseau.
+[![Playwright Tests](https://github.com/lasquale619/PlaywrightPractice/actions/workflows/playwright.yml/badge.svg)](https://github.com/lasquale619/PlaywrightPractice/actions/workflows/playwright.yml)
+![Playwright](https://img.shields.io/badge/Playwright-1.64-2EAD33?logo=playwright&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+
+Projet d'automatisation de tests de l'application [Notes](https://practice.expandtesting.com/notes/app/) avec Playwright et TypeScript :
+tests UI, tests API et mocking réseau, exécutés à chaque push par GitHub Actions.
+
+## Ce que montre ce projet
+
+- **Page Object Model** : `BasePage`, `NotesPage` et `RegisterPage` regroupent les sélecteurs et les actions de chaque page.
+- **Authentification réutilisée** : un projet `setup` connecte deux utilisateurs une seule fois et sauvegarde leur session (`storageState`), que les tests réutilisent.
+- **Fixture personnalisée** : une fixture automatique bloque les pubs et les trackers pour stabiliser les tests UI.
+- **Tests API** : création, lecture, mise à jour et suppression de notes avec `APIRequestContext`, connexion une seule fois par fichier.
+- **Mocking réseau** : `page.route()` pour remplacer une réponse d'API ou modifier la vraie réponse.
+- **Tests indépendants** : données uniques générées avec Faker, nettoyage après chaque test, aucune dépendance à l'ordre ou à l'état du compte.
+- **Secrets hors du code** : identifiants dans un fichier `.env` en local et dans les secrets GitHub sur la CI.
+
+## Stack
+
+Playwright 1.64 · TypeScript (strict) · Faker · dotenv · GitHub Actions
 
 ## Installation
 
@@ -9,7 +27,6 @@ tests UI (Page Object Model), tests API et mocking réseau.
 npm ci
 npx playwright install
 ```
-
 
 ## Lancer les tests
 
@@ -19,23 +36,21 @@ npx playwright install
 | `npm run test:ui` | Mode UI interactif |
 | `npm run test:api` | Seulement les tests API |
 | `npm run test:all-browsers` | Chromium, Firefox et WebKit |
+| `npm run typecheck` | Vérifie les types TypeScript |
 | `npm run report` | Ouvre le dernier rapport HTML |
-
-Le projet `setup` (`tests/auth.setup.ts`) se lance automatiquement avant les tests :
-il connecte les deux utilisateurs et sauvegarde leur session dans `playwright/.auth/`.
 
 ## Structure
 
 ```
-pages/            Page Objects (BasePage, NotesPage, RegisterPage)
-tests/fixtures/   test personnalisé (blocage des pubs automatique)
-tests/            tests UI + setup d'authentification
-tests/api/        tests API
-tests/apiMocking/ tests de mocking réseau
+pages/              Page Objects (BasePage, NotesPage, RegisterPage)
+tests/fixtures/     test personnalisé (blocage automatique des pubs)
+tests/auth.setup.ts connexion des utilisateurs avant les tests
+tests/*.spec.ts     tests UI
+tests/api/          tests API
+tests/apiMocking/   tests de mocking réseau
 ```
 
 ## CI
 
-GitHub Actions lance les tests à chaque push et pull request sur `main`/`master`.
-Ajoute ces secrets dans *Settings > Secrets and variables > Actions* du dépôt :
-`USER1_EMAIL`, `USER1_PASSWORD`, `USER2_EMAIL`, `USER2_PASSWORD`.
+GitHub Actions lance les tests à chaque push et pull request sur `main`/`master`, puis publie le rapport HTML en artefact.
+Les identifiants viennent des secrets du dépôt : `USER1_EMAIL`, `USER1_PASSWORD`, `USER2_EMAIL`, `USER2_PASSWORD`.
