@@ -10,8 +10,6 @@ npm ci
 npx playwright install
 ```
 
-Copie `.env.example` en `.env` et remplis les identifiants des deux comptes de test.
-Le fichier `.env` est ignoré par git.
 
 ## Lancer les tests
 
