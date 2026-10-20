@@ -1,14 +1,11 @@
 // @ts-check
 /// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+// Identifiants lus depuis .env en local, et depuis les secrets GitHub sur la CI.
+dotenv.config({ path: path.resolve(__dirname, '.env'), quiet: true });
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -27,67 +24,37 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-   /*  baseURL: 'https://practice.expandtesting.com/notes/app', */
+    /* Base URL utilisée par page.goto('/...') et request.get('/...'). */
+    baseURL: 'https://practice.expandtesting.com',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    serviceWorkers: 'block',  
+    serviceWorkers: 'block',
   },
 
-  /* Configure projects for major browsers */
   projects: [
+    // Connecte les deux utilisateurs et sauvegarde leur session dans playwright/.auth/
+    { name: 'setup', testMatch: /.*\.setup\.js/ },
 
-      // Setup project
-    { name: 'setup', testMatch: "auth.setup.js"},
-
-     {
+    {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use prepared auth state.
-        // storageState: 'playwright/.auth/user.json',
-      },
-      // dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
     },
 
-   /*  {
+    /* Pas lancés par défaut : `npm run test:all-browsers` ou --project=firefox */
+    {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup'],
+      default: false,
     },
-
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
-    }, */
-
-    /* Test against mobile viewports. */
-   /*   {
-       name: 'Mobile Chrome',
-       use: { ...devices['Pixel 5'] },
-     },
-     {
-       name: 'Mobile Safari',
-       use: { ...devices['iPhone 12'] },
-     }, */
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+      dependencies: ['setup'],
+      default: false,
+    },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });
-
