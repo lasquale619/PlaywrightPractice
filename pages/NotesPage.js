@@ -1,7 +1,6 @@
 // @ts-check
-
-const { expect } = require('@playwright/test');
-const { BasePage } = require('./BasePage');
+import { expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
 export class NotesPage extends BasePage {
 
@@ -17,16 +16,7 @@ export class NotesPage extends BasePage {
         this.noteSubmitButton = page.getByTestId('note-submit');
         this.noteDeleteButton = page.getByTestId('note-delete');
         this.noteDeleteConfirmButton = page.getByTestId('note-delete-confirm');
-        this.noNotesMessage = page.getByTestId('no-notes-message');
         this.noteCardTitle = page.getByTestId('note-card-title');
-    }
-
-    async closeCookieBanner() {
-        // Fermer une éventuelle bannière de cookies
-        const cookieButton = this.page.getByRole('button', { name: /accept|ok|got it/i });
-        if (await cookieButton.isVisible().catch(() => false)) {
-            await cookieButton.click();
-        }
     }
 
     /**
@@ -42,17 +32,38 @@ export class NotesPage extends BasePage {
         await this.noteSubmitButton.click();
     }
 
-    async getFirstNoteTitle() {
-        return await this.noteCardTitle.first().innerText();
+    /**
+     * @param {string} title
+     */
+    noteTitle(title) {
+        return this.noteCardTitle.filter({ hasText: title });
     }
 
-    async deleteFirstNote() {
-        await this.noteDeleteButton.first().click();
+    /**
+     * Supprime la note qui porte ce titre, sans dépendre de sa position dans la liste.
+     * @param {string} title
+     */
+    async deleteNote(title) {
+        // Le plus petit bloc qui contient à la fois ce titre et un bouton supprimer = la carte de la note.
+        const card = this.page.locator('div')
+            .filter({ has: this.noteTitle(title) })
+            .filter({ has: this.noteDeleteButton })
+            .last();
+        await card.getByTestId('note-delete').click();
         await this.noteDeleteConfirmButton.click();
     }
 
-    async getNoNotesMessage() {
-        return await this.noNotesMessage.innerText();
+    /**
+     * @param {string} title
+     */
+    async verifyNoteIsVisible(title) {
+        await expect(this.noteTitle(title)).toBeVisible();
     }
 
+    /**
+     * @param {string} title
+     */
+    async verifyNoteIsDeleted(title) {
+        await expect(this.noteTitle(title)).toHaveCount(0);
+    }
 }

@@ -1,36 +1,28 @@
-import { test, expect } from '@playwright/test';
+// @ts-check
+import { faker } from '@faker-js/faker';
+import { test } from './fixtures/test';
 import { NotesPage } from '../pages/NotesPage';
-
 
 test.describe('Notes test cases', () => {
 
-
     test.beforeEach(async ({ page }) => {
-        // Bloquer les ressources inutiles
-        await page.route("**/*", (route) => {
-            const url = route.request().url();
-            if (/ads|doubleclick|googlesyndication|pagead|adservice|admanager|adframe/i.test(url) ||
-                url.includes("socket.io") || // Bloquer les connexions socket.io
-                url.includes("analytics") // Bloquer Google Analytics
-            ) {
-                route.abort(); // Stopper la requête
-            } else {
-                route.continue(); // Continuer pour les autres requêtes
-            }
-        });
-
-        const notesPages = new NotesPage(page);
-        await notesPages.navigateToApp();
+        const notesPage = new NotesPage(page);
+        await notesPage.navigateToApp();
     });
 
     test.describe('Create note with user', () => {
         test.use({ storageState: 'playwright/.auth/user.json' });
+
         test('create a new note', async ({ page }) => {
             const notesPage = new NotesPage(page);
-            await notesPage.createNote('Work', 'New Note Title', 'This is the description of the new note.');
+            // Titre unique : le test ne dépend pas des notes déjà présentes sur le compte.
+            const title = `Note ${faker.string.alphanumeric(8)}`;
 
-            const noteTitle = await notesPage.getFirstNoteTitle();
-            expect(noteTitle).toBe('New Note Title');
+            await notesPage.createNote('Work', title, 'This is the description of the new note.');
+            await notesPage.verifyNoteIsVisible(title);
+
+            // Nettoyage : on ne laisse pas de notes s'accumuler sur le compte.
+            await notesPage.deleteNote(title);
         });
     });
 
@@ -39,19 +31,12 @@ test.describe('Notes test cases', () => {
 
         test('delete note', async ({ page }) => {
             const notesPage = new NotesPage(page);
+            const title = `Note ${faker.string.alphanumeric(8)}`;
 
-            await notesPage.createNote('Work', 'New Note Title', 'This is the description of the new note.');
-            await notesPage.deleteFirstNote();
-            const noNotesMessage = await notesPage.getNoNotesMessage();
-            expect(noNotesMessage).toBe('You don\'t have any notes in all categories');
+            await notesPage.createNote('Work', title, 'This is the description of the new note.');
+            await notesPage.verifyNoteIsVisible(title);
+            await notesPage.deleteNote(title);
+            await notesPage.verifyNoteIsDeleted(title);
         });
-
     });
-
-
-
-})
-
-
-
-
+});
