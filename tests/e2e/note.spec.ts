@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { test } from './fixtures/test';
-import { NotesPage } from '../pages/NotesPage';
+import { test } from '../../fixtures/test.fixture';
+import { NotesPage } from '../../pages/NotesPage';
 
 test.describe('Notes test cases', () => {
 

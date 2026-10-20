@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { test } from './fixtures/test';
-import { RegisterPage } from '../pages/RegisterPage';
+import { test } from '../../fixtures/test.fixture';
+import { RegisterPage } from '../../pages/RegisterPage';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 

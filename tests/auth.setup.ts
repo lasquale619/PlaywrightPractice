@@ -1,5 +1,5 @@
 import path from 'path';
-import { test as setup, expect } from './fixtures/test';
+import { test as setup, expect } from '../fixtures/test.fixture';
 
 const users = [
     { name: 'user', email: process.env.USER1_EMAIL, password: process.env.USER1_PASSWORD, file: 'user.json' },

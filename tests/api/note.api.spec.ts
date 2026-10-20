@@ -1,45 +1,19 @@
-import { test, expect, type APIRequestContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { NotesClient } from '../../api/notes.client';
 
-let api: APIRequestContext;
+let notes: NotesClient;
 
-// Connexion une seule fois pour tout le fichier, puis le token est envoyé automatiquement.
+// Connexion une seule fois pour tout le fichier.
 test.beforeAll(async ({ playwright, baseURL }) => {
-    const login = await playwright.request.newContext({ baseURL });
-    const response = await login.post('/notes/api/users/login', {
-        data: {
-            email: process.env.USER1_EMAIL,
-            password: process.env.USER1_PASSWORD,
-        }
-    });
-    expect(response.status()).toBe(200);
-    const token: string = (await response.json()).data.token;
-    await login.dispose();
-
-    api = await playwright.request.newContext({
-        baseURL,
-        extraHTTPHeaders: { 'X-Auth-Token': token },
-    });
+    notes = await NotesClient.login(playwright, baseURL, process.env.USER1_EMAIL, process.env.USER1_PASSWORD);
 });
 
 test.afterAll(async () => {
-    await api.dispose();
+    await notes.dispose();
 });
 
-async function createNote(title: string): Promise<string> {
-    const response = await api.post('/notes/api/notes', {
-        data: {
-            category: 'Personal',
-            completed: false,
-            description: 'new description',
-            title,
-        }
-    });
-    expect(response.status()).toBe(200);
-    return (await response.json()).data.id;
-}
-
 test('get notes', async () => {
-    const responseGet = await api.get('/notes/api/notes');
+    const responseGet = await notes.getNotes();
 
     expect(responseGet.status()).toBe(200);
     const responseGetBody = await responseGet.json();
@@ -48,15 +22,13 @@ test('get notes', async () => {
 
 test('should be able to update a note', async () => {
     // On crée la note dans le test au lieu d'utiliser un ID en dur.
-    const noteId = await createNote('Title to update');
+    const noteId = await notes.createNote('Title to update');
 
-    const responsePut = await api.put(`/notes/api/notes/${noteId}`, {
-        data: {
-            category: 'Personal',
-            completed: false,
-            description: 'Updated description',
-            title: 'Updated Title'
-        }
+    const responsePut = await notes.updateNote(noteId, {
+        category: 'Personal',
+        completed: false,
+        description: 'Updated description',
+        title: 'Updated Title'
     });
 
     expect(responsePut.status()).toBe(200);
@@ -66,13 +38,13 @@ test('should be able to update a note', async () => {
     expect(responsePutBody.data).toHaveProperty('title', 'Updated Title');
 
     // Nettoyage
-    await api.delete(`/notes/api/notes/${noteId}`);
+    await notes.deleteNote(noteId);
 });
 
 test('should be able to delete a note', async () => {
-    const noteId = await createNote('new Title');
+    const noteId = await notes.createNote('new Title');
 
-    const responseDelete = await api.delete(`/notes/api/notes/${noteId}`);
+    const responseDelete = await notes.deleteNote(noteId);
 
     expect(responseDelete.status()).toBe(200);
     const responseDeleteBody = await responseDelete.json();
