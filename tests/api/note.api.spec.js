@@ -2,100 +2,85 @@
 /// <reference types="node" />
 import { test, expect } from '@playwright/test';
 
-let token = '';
+/** @type {import('@playwright/test').APIRequestContext} */
+let api;
 
-test.beforeEach(async ({ request }) => {
-    const response = await request.post('https://practice.expandtesting.com/notes/api/users/login', {
+// Connexion une seule fois pour tout le fichier, puis le token est envoyé automatiquement.
+test.beforeAll(async ({ playwright, baseURL }) => {
+    const login = await playwright.request.newContext({ baseURL });
+    const response = await login.post('/notes/api/users/login', {
         data: {
-            "email": "playwright_test1@gmail.com",
-            "password": "123456",
+            email: process.env.USER1_EMAIL,
+            password: process.env.USER1_PASSWORD,
         }
-    })
-
-    expect(response.ok()).toBeTruthy();
+    });
     expect(response.status()).toBe(200);
+    const token = (await response.json()).data.token;
+    await login.dispose();
 
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    token = responseBody.data.token;
-    console.log(token);
-
-});
-
-
-
-test('get notes', async ({ request }) => {
-
-    const responseGet = await request.get('https://practice.expandtesting.com/notes/api/notes', {
-        headers: {
-            "X-Auth-Token": token,
-        }
+    api = await playwright.request.newContext({
+        baseURL,
+        extraHTTPHeaders: { 'X-Auth-Token': token },
     });
-    expect(responseGet.ok()).toBeTruthy();
-    expect(responseGet.status()).toBe(200);
-
-    const responseGetBody = await responseGet.json();
-    console.log(responseGetBody);
 });
 
+test.afterAll(async () => {
+    await api.dispose();
+});
 
-test('shoould be able to update a note', async ({ request }) => {
-
-    const responsePut = await request.put('https://practice.expandtesting.com/notes/api/notes/6a611976fda22d0295a94a1b', {
-        headers: {
-            "X-Auth-Token": token,
-        },
+/**
+ * @param {string} title
+ */
+async function createNote(title) {
+    const response = await api.post('/notes/api/notes', {
         data: {
-            category: "Personal",
+            category: 'Personal',
             completed: false,
-            description: "Updated description",
-            title: "Updated Title"
+            description: 'new description',
+            title,
+        }
+    });
+    expect(response.status()).toBe(200);
+    return (await response.json()).data.id;
+}
+
+test('get notes', async () => {
+    const responseGet = await api.get('/notes/api/notes');
+
+    expect(responseGet.status()).toBe(200);
+    const responseGetBody = await responseGet.json();
+    expect(Array.isArray(responseGetBody.data)).toBeTruthy();
+});
+
+test('should be able to update a note', async () => {
+    // On crée la note dans le test au lieu d'utiliser un ID en dur.
+    const noteId = await createNote('Title to update');
+
+    const responsePut = await api.put(`/notes/api/notes/${noteId}`, {
+        data: {
+            category: 'Personal',
+            completed: false,
+            description: 'Updated description',
+            title: 'Updated Title'
         }
     });
 
-    expect(responsePut.ok()).toBeTruthy();
     expect(responsePut.status()).toBe(200);
-
     const responsePutBody = await responsePut.json();
     expect(responsePutBody.data).toHaveProperty('completed', false);
     expect(responsePutBody.data).toHaveProperty('description', 'Updated description');
     expect(responsePutBody.data).toHaveProperty('title', 'Updated Title');
+
+    // Nettoyage
+    await api.delete(`/notes/api/notes/${noteId}`);
 });
 
-test('should be able to delete a note', async ({ request }) => {
+test('should be able to delete a note', async () => {
+    const noteId = await createNote('new Title');
 
-    const responseCreate = await request.post('https://practice.expandtesting.com/notes/api/notes', {
-        headers: {
-            "X-Auth-Token": token,
-        },
-        data: {
-            category: "Personal",
-            completed: false,
-            description: "new description",
-            title: "new Title"
-        }
-    });
+    const responseDelete = await api.delete(`/notes/api/notes/${noteId}`);
 
-    expect(responseCreate.ok()).toBeTruthy();
-    expect(responseCreate.status()).toBe(200);
-
-    const responseCreateBody = await responseCreate.json();
-    const noteId = responseCreateBody.data.id;
-
-
-
-
-
-    const responseDelete = await request.delete(`https://practice.expandtesting.com/notes/api/notes/${noteId}`, {
-        headers: {
-            "X-Auth-Token": token,
-        }
-    });
-
-    expect(responseDelete.ok()).toBeTruthy();
     expect(responseDelete.status()).toBe(200);
-
     const responseDeleteBody = await responseDelete.json();
     expect(responseDeleteBody).toHaveProperty('message', 'Note successfully deleted');
 });
