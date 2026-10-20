@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from './fixtures/test';
 
 test.describe('testing home page', () => {

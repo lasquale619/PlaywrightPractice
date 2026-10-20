@@ -1,13 +1,17 @@
-// @ts-check
-import { expect } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class NotesPage extends BasePage {
+    readonly addNewNoteButton: Locator;
+    readonly noteCategorySelect: Locator;
+    readonly noteTitleInput: Locator;
+    readonly noteDescriptionInput: Locator;
+    readonly noteSubmitButton: Locator;
+    readonly noteDeleteButton: Locator;
+    readonly noteDeleteConfirmButton: Locator;
+    readonly noteCardTitle: Locator;
 
-    /**
-     * @param {import('@playwright/test').Page} page
-     */
-    constructor(page) {
+    constructor(page: Page) {
         super(page);
         this.addNewNoteButton = page.getByTestId('add-new-note');
         this.noteCategorySelect = page.getByTestId('note-category');
@@ -19,12 +23,7 @@ export class NotesPage extends BasePage {
         this.noteCardTitle = page.getByTestId('note-card-title');
     }
 
-    /**
-     * @param {string} category
-     * @param {string} title
-     * @param {string} description
-     */
-    async createNote(category, title, description) {
+    async createNote(category: string, title: string, description: string) {
         await this.addNewNoteButton.click();
         await this.noteCategorySelect.selectOption(category);
         await this.noteTitleInput.fill(title);
@@ -32,18 +31,14 @@ export class NotesPage extends BasePage {
         await this.noteSubmitButton.click();
     }
 
-    /**
-     * @param {string} title
-     */
-    noteTitle(title) {
+    noteTitle(title: string) {
         return this.noteCardTitle.filter({ hasText: title });
     }
 
     /**
      * Supprime la note qui porte ce titre, sans dépendre de sa position dans la liste.
-     * @param {string} title
      */
-    async deleteNote(title) {
+    async deleteNote(title: string) {
         // Le plus petit bloc qui contient à la fois ce titre et un bouton supprimer = la carte de la note.
         const card = this.page.locator('div')
             .filter({ has: this.noteTitle(title) })
@@ -53,17 +48,11 @@ export class NotesPage extends BasePage {
         await this.noteDeleteConfirmButton.click();
     }
 
-    /**
-     * @param {string} title
-     */
-    async verifyNoteIsVisible(title) {
+    async verifyNoteIsVisible(title: string) {
         await expect(this.noteTitle(title)).toBeVisible();
     }
 
-    /**
-     * @param {string} title
-     */
-    async verifyNoteIsDeleted(title) {
+    async verifyNoteIsDeleted(title: string) {
         await expect(this.noteTitle(title)).toHaveCount(0);
     }
 }

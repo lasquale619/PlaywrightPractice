@@ -1,13 +1,16 @@
-// @ts-check
-import { expect } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class RegisterPage extends BasePage {
+    readonly createAccountButton: Locator;
+    readonly emailInput: Locator;
+    readonly passwordInput: Locator;
+    readonly nameInput: Locator;
+    readonly confirmPasswordInput: Locator;
+    readonly submitButton: Locator;
+    readonly successMessage: Locator;
 
-    /**
-     * @param {import('@playwright/test').Page} page
-     */
-    constructor(page) {
+    constructor(page: Page) {
         super(page);
 
         this.createAccountButton = page.getByTestId('open-register-view');
@@ -23,12 +26,7 @@ export class RegisterPage extends BasePage {
         await this.createAccountButton.click();
     }
 
-    /**
-     * @param {string} email
-     * @param {string} password
-     * @param {string} name
-     */
-    async createUser(email, password, name) {
+    async createUser(email: string, password: string, name: string) {
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.nameInput.fill(name);

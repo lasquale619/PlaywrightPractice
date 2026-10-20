@@ -1,5 +1,3 @@
-// @ts-check
-/// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -35,7 +33,7 @@ export default defineConfig({
 
   projects: [
     // Connecte les deux utilisateurs et sauvegarde leur session dans playwright/.auth/
-    { name: 'setup', testMatch: /.*\.setup\.js/ },
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
 
     {
       name: 'chromium',

@@ -1,5 +1,3 @@
-// @ts-check
-/// <reference types="node" />
 import { test, expect } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 

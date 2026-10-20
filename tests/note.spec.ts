@@ -1,4 +1,3 @@
-// @ts-check
 import { faker } from '@faker-js/faker';
 import { test } from './fixtures/test';
 import { NotesPage } from '../pages/NotesPage';

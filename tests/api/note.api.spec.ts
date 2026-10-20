@@ -1,9 +1,6 @@
-// @ts-check
-/// <reference types="node" />
-import { test, expect } from '@playwright/test';
+import { test, expect, type APIRequestContext } from '@playwright/test';
 
-/** @type {import('@playwright/test').APIRequestContext} */
-let api;
+let api: APIRequestContext;
 
 // Connexion une seule fois pour tout le fichier, puis le token est envoyé automatiquement.
 test.beforeAll(async ({ playwright, baseURL }) => {
@@ -15,7 +12,7 @@ test.beforeAll(async ({ playwright, baseURL }) => {
         }
     });
     expect(response.status()).toBe(200);
-    const token = (await response.json()).data.token;
+    const token: string = (await response.json()).data.token;
     await login.dispose();
 
     api = await playwright.request.newContext({
@@ -28,10 +25,7 @@ test.afterAll(async () => {
     await api.dispose();
 });
 
-/**
- * @param {string} title
- */
-async function createNote(title) {
+async function createNote(title: string): Promise<string> {
     const response = await api.post('/notes/api/notes', {
         data: {
             category: 'Personal',

@@ -1,4 +1,3 @@
-// @ts-check
 import path from 'path';
 import { test as setup, expect } from './fixtures/test';
 

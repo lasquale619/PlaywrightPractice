@@ -21,7 +21,7 @@ npx playwright install
 | `npm run test:all-browsers` | Chromium, Firefox et WebKit |
 | `npm run report` | Ouvre le dernier rapport HTML |
 
-Le projet `setup` (`tests/auth.setup.js`) se lance automatiquement avant les tests :
+Le projet `setup` (`tests/auth.setup.ts`) se lance automatiquement avant les tests :
 il connecte les deux utilisateurs et sauvegarde leur session dans `playwright/.auth/`.
 
 ## Structure
