@@ -50,3 +50,26 @@ test('should be able to delete a note', async () => {
     const responseDeleteBody = await responseDelete.json();
     expect(responseDeleteBody).toHaveProperty('message', 'Note successfully deleted');
 });
+
+test.describe('Notes API - negative cases', () => {
+    test('rejects a request without a token', async ({ request }) => {
+        const response = await request.get('/notes/api/notes');
+
+        expect(response.status()).toBe(401);
+        expect(await response.json()).toHaveProperty('success', false);
+    });
+
+    test('rejects a note with a title that is too short', async () => {
+        const response = await notes.createNoteRaw({ category: 'Personal', completed: false, description: 'description', title: 'ab' });
+
+        expect(response.status()).toBe(400);
+        expect(await response.json()).toHaveProperty('success', false);
+    });
+
+    test('rejects an invalid note id', async () => {
+        const response = await notes.deleteNote('not-a-valid-id');
+
+        expect(response.status()).toBe(400);
+        expect(await response.json()).toHaveProperty('success', false);
+    });
+});

@@ -36,11 +36,14 @@ export class NotesClient {
         return this.api.get('/notes/api/notes');
     }
 
+    /** Envoie la requête de création telle quelle, pour tester les réponses d'erreur. */
+    createNoteRaw(data: NoteData) {
+        return this.api.post('/notes/api/notes', { data });
+    }
+
     /** Crée une note et renvoie son id. */
     async createNote(title: string): Promise<string> {
-        const response = await this.api.post('/notes/api/notes', {
-            data: { category: 'Personal', completed: false, description: 'new description', title },
-        });
+        const response = await this.createNoteRaw({ category: 'Personal', completed: false, description: 'new description', title });
         expect(response.status()).toBe(200);
         return (await response.json()).data.id;
     }

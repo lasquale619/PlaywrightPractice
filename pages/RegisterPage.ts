@@ -26,15 +26,19 @@ export class RegisterPage extends BasePage {
         await this.createAccountButton.click();
     }
 
-    async createUser(email: string, password: string, name: string) {
+    async createUser(email: string, password: string, name: string, confirmPassword = password) {
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
         await this.nameInput.fill(name);
-        await this.confirmPasswordInput.fill(password);
+        await this.confirmPasswordInput.fill(confirmPassword);
         await this.submitButton.click();
     }
 
     async verifySuccessMessage() {
         await expect(this.successMessage).toBeVisible();
+    }
+
+    async verifyErrorMessage(message: RegExp) {
+        await expect(this.page.getByText(message)).toBeVisible();
     }
 }

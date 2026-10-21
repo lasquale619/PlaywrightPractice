@@ -9,10 +9,11 @@ tests UI, tests API et mocking réseau, exécutés à chaque push par GitHub Act
 
 ## Ce que montre ce projet
 
-- **Page Object Model** : `BasePage`, `NotesPage` et `RegisterPage` regroupent les sélecteurs et les actions de chaque page.
+- **Page Object Model** : `BasePage`, `LoginPage`, `NotesPage` et `RegisterPage` regroupent les sélecteurs et les actions de chaque page.
 - **Authentification réutilisée** : un projet `setup` connecte deux utilisateurs une seule fois et sauvegarde leur session (`storageState`), que les tests réutilisent.
 - **Fixture personnalisée** : une fixture automatique bloque les pubs et les trackers pour stabiliser les tests UI.
 - **Client API** : un `NotesClient` (dossier `api/`) se connecte une fois et expose la création, lecture, mise à jour et suppression de notes, réutilisables par tous les tests.
+- **Tests négatifs** : mauvais mot de passe, email inconnu ou déjà utilisé, mots de passe différents, et réponses d'erreur de l'API (401, 400, 409).
 - **Mocking réseau** : `page.route()` pour remplacer une réponse d'API ou modifier la vraie réponse.
 - **Tests indépendants** : données uniques générées avec Faker, nettoyage après chaque test, aucune dépendance à l'ordre ou à l'état du compte.
 - **Secrets hors du code** : identifiants dans un fichier `.env` en local et dans les secrets GitHub sur la CI.
@@ -45,10 +46,10 @@ npx playwright install
 ```
 api/                client de l'API Notes (connexion, CRUD des notes)
 fixtures/           test personnalisé (blocage automatique des pubs)
-pages/              Page Objects (BasePage, NotesPage, RegisterPage)
+pages/              Page Objects (BasePage, LoginPage, NotesPage, RegisterPage)
 tests/auth.setup.ts connexion des utilisateurs avant les tests
-tests/e2e/          tests UI
-tests/api/          tests API
+tests/e2e/          tests UI (connexion, inscription, notes)
+tests/api/          tests API (authentification, notes)
 tests/mocking/      tests de mocking réseau
 ```
 
