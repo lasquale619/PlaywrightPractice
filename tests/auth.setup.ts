@@ -7,7 +7,7 @@ const users = [
 ];
 
 for (const user of users) {
-    setup(`authenticate with ${user.name}`, async ({ page }) => {
+    setup(`authenticate with ${user.name}`, { tag: '@CT-CNX-01' }, async ({ page }) => {
         if (!user.email || !user.password) {
             throw new Error(`Identifiants manquants pour ${user.name} : remplis le fichier .env (voir .env.example)`);
         }

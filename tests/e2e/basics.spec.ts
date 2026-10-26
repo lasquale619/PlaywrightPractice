@@ -5,11 +5,11 @@ test.describe('testing home page', () => {
     await page.goto('/notes/app/');
   });
 
-  test('verify welcome message', async ({ page }) => {
+  test('verify welcome message', { tag: '@CT-ACC-01' }, async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Welcome to Notes App' })).toBeVisible();
   });
 
-  test('verify the redirection to the registration page', async ({ page }) => {
+  test('verify the redirection to the registration page', { tag: '@CT-ACC-02' }, async ({ page }) => {
     await expect(page.getByTestId('open-register-view')).toBeVisible();
     await page.getByTestId('open-register-view').click();
     await expect(page).toHaveURL(/register/);

@@ -51,7 +51,20 @@ tests/auth.setup.ts connexion des utilisateurs avant les tests
 tests/e2e/          tests UI (connexion, inscription, notes)
 tests/api/          tests API (authentification, notes)
 tests/mocking/      tests de mocking réseau
+reporters/          reporter qui envoie les résultats à Squash TM
+scripts/            script de configuration des cas de test Squash
 ```
+
+## Intégration Squash TM
+
+Les résultats des tests sont envoyés automatiquement à [Squash TM](https://www.squashtest.com/) par un reporter Playwright (`reporters/squash.reporter.ts`).
+
+- Chaque test porte un tag `@CT-...` égal à la référence de son cas de test Squash, par exemple `{ tag: '@CT-ACC-01' }`.
+- En fin d'exécution, le reporter envoie les statuts à une itération via l'API REST de Squash (`POST /import/results/{iterationId}`). Si plusieurs tests partagent un cas de test, le pire résultat l'emporte.
+- En cas d'échec, le message d'erreur est joint à l'exécution Squash dans un fichier `erreur.txt`.
+- `scripts/squash-set-refs.mjs` recopie la référence de chaque cas de test dans sa « référence du test automatisé » (`node scripts/squash-set-refs.mjs --apply`).
+
+Pour l'activer, renseigner `SQUASH_URL`, `SQUASH_TOKEN` (jeton d'API personnel) et `SQUASH_ITERATION_ID` dans le `.env`. Sans ces variables, le reporter ne fait rien : c'est le cas sur la CI.
 
 ## CI
 

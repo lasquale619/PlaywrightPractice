@@ -12,7 +12,7 @@ test.afterAll(async () => {
     await notes.dispose();
 });
 
-test('get notes', async () => {
+test('get notes', { tag: '@CT-API-NOT-02' }, async () => {
     const responseGet = await notes.getNotes();
 
     expect(responseGet.status()).toBe(200);
@@ -20,7 +20,7 @@ test('get notes', async () => {
     expect(Array.isArray(responseGetBody.data)).toBeTruthy();
 });
 
-test('should be able to update a note', async () => {
+test('should be able to update a note', { tag: '@CT-API-NOT-03' }, async () => {
     // On crée la note dans le test au lieu d'utiliser un ID en dur.
     const noteId = await notes.createNote('Title to update');
 
@@ -41,7 +41,7 @@ test('should be able to update a note', async () => {
     await notes.deleteNote(noteId);
 });
 
-test('should be able to delete a note', async () => {
+test('should be able to delete a note', { tag: '@CT-API-NOT-04' }, async () => {
     const noteId = await notes.createNote('new Title');
 
     const responseDelete = await notes.deleteNote(noteId);
@@ -52,21 +52,21 @@ test('should be able to delete a note', async () => {
 });
 
 test.describe('Notes API - negative cases', () => {
-    test('rejects a request without a token', async ({ request }) => {
+    test('rejects a request without a token', { tag: '@CT-API-SEC-01' }, async ({ request }) => {
         const response = await request.get('/notes/api/notes');
 
         expect(response.status()).toBe(401);
         expect(await response.json()).toHaveProperty('success', false);
     });
 
-    test('rejects a note with a title that is too short', async () => {
+    test('rejects a note with a title that is too short', { tag: '@CT-API-NOT-05' }, async () => {
         const response = await notes.createNoteRaw({ category: 'Personal', completed: false, description: 'description', title: 'ab' });
 
         expect(response.status()).toBe(400);
         expect(await response.json()).toHaveProperty('success', false);
     });
 
-    test('rejects an invalid note id', async () => {
+    test('rejects an invalid note id', { tag: '@CT-API-NOT-06' }, async () => {
         const response = await notes.deleteNote('not-a-valid-id');
 
         expect(response.status()).toBe(400);

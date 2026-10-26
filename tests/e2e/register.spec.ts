@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
     await registerPage.openRegisterView();
 });
 
-test('successfully create a user account', async ({ page }) => {
+test('successfully create a user account', { tag: '@CT-INS-01' }, async ({ page }) => {
     const registerPage = new RegisterPage(page);
 
     await registerPage.createUser(faker.internet.email(), faker.internet.password({ length: 10 }), faker.person.fullName());
@@ -18,14 +18,14 @@ test('successfully create a user account', async ({ page }) => {
 });
 
 test.describe('Register - negative cases', () => {
-    test('shows an error when passwords do not match', async ({ page }) => {
+    test('shows an error when passwords do not match', { tag: '@CT-INS-02' }, async ({ page }) => {
         const registerPage = new RegisterPage(page);
 
         await registerPage.createUser(faker.internet.email(), 'password123', faker.person.fullName(), 'different123');
         await registerPage.verifyErrorMessage(/passwords don.t match/i);
     });
 
-    test('shows an error when the email is already used', async ({ page }) => {
+    test('shows an error when the email is already used', { tag: '@CT-INS-03' }, async ({ page }) => {
         const registerPage = new RegisterPage(page);
 
         await registerPage.createUser(process.env.USER1_EMAIL!, faker.internet.password({ length: 10 }), faker.person.fullName());

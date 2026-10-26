@@ -12,7 +12,7 @@ test.describe('Notes test cases', () => {
     test.describe('Create note with user', () => {
         test.use({ storageState: 'playwright/.auth/user.json' });
 
-        test('create a new note', async ({ page }) => {
+        test('create a new note', { tag: '@CT-NOT-01' }, async ({ page }) => {
             const notesPage = new NotesPage(page);
             // Titre unique : le test ne dépend pas des notes déjà présentes sur le compte.
             const title = `Note ${faker.string.alphanumeric(8)}`;
@@ -28,7 +28,7 @@ test.describe('Notes test cases', () => {
     test.describe('Delete note with user2', () => {
         test.use({ storageState: 'playwright/.auth/user2.json' });
 
-        test('delete note', async ({ page }) => {
+        test('delete note', { tag: '@CT-NOT-04' }, async ({ page }) => {
             const notesPage = new NotesPage(page);
             const title = `Note ${faker.string.alphanumeric(8)}`;
 
